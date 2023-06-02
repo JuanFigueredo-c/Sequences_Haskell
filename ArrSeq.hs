@@ -3,13 +3,13 @@ module ArrSeq where
 import Seq
 import Par
 import qualified Arr as A
-import Arr (!)
+import Arr ((!))
 
 emptyS :: A.Arr a
 emptyS = A.empty
 
 singletonS :: a -> A.Arr a
-singletonS x = A.A (V.singleton x)
+singletonS x = A.fromList [x]
 
 lengthS :: A.Arr a -> Int
 lengthS = length

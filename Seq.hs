@@ -2,6 +2,12 @@
 
 module Seq where
 
+import Par ((|||))
+import GHC.Float (int2Float)
+
+ilg :: Int -> Int
+ilg = floor . (logBase 2) . int2Float
+
 class Seq s where
    emptyS     :: s a
    singletonS :: a -> s a
@@ -25,15 +31,15 @@ data ListView a t = NIL | CONS a t
 
 data Tree a = Leaf a | Node (Tree a) (Tree a)
 
-toTree :: Seq a -> Tree a
+toTree :: Seq s => s a -> Tree a
 toTree s = case lengthS s of
   1 -> (Leaf (nthS s 0))
-  n -> let (l,r) = toTree (takeS s pp) Par.(|||) toTree (dropS s pp)
+  n -> let (l,r) = toTree (takeS s pp) ||| toTree (dropS s pp)
        in Node l r
-    where pp = 2 ^ ilg (n - 1)
+    where pp = 2 ^ (ilg (n - 1))
 
 reduceT :: (a -> a -> a) -> Tree a -> a
 reduceT g (Leaf x) = x
 reduceT g (Node l r) = let (l',r') = (reduceT g l)
-                                      Par.(|||) (reduceT g r)
+                                      ||| (reduceT g r)
                        in g l' r'
