@@ -1,0 +1,6 @@
+1) Es correcto dar definiciones de funciones a partir
+de funciones de listas, o se tienen que hacer explicitamente?
+(Ej. mapS = map)
+2) ¿Se puede agregar funciones al modulo Seq?
+3) ¿Estan paralelizadas las implementaciones de haskell (ej. fmap sobre vectores)?
+4) Preguntar por especificacion de costos de flatten
