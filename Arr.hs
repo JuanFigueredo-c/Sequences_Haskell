@@ -1,15 +1,14 @@
 {-
- Este módulo requiere la librería Vector. 
- 
- Esta puede instalarse utilizando Cabal, ejecutando el siguiente código  
- en un intérprete de comandos: 
- 
- $ cabal update
- $ cabal install vector
- 
+  Este módulo requiere la librería Vector. 
+
+  Esta puede instalarse utilizando Cabal, ejecutando el siguiente código  
+  en un intérprete de comandos: 
+
+  $ cabal update
+  $ cabal install vector
 -}
 
-module Arr (Arr, length, tabulate, (!), subArray, fromList, flatten, empty) where
+module Arr (Arr(..), length, tabulate, (!), subArray, fromList, flatten, empty) where
 
 import Prelude hiding (length)
 import qualified Data.Vector as V
@@ -41,10 +40,10 @@ flatten :: Arr (Arr a) -> Arr a
 flatten (A pa) = A (join (fmap getVector pa))
 
 instance Show a => Show (Arr a) where
-         show p = "<" ++ show' p (length p) 0
-            where show' p n i | i== n     = ">"
-                              | i== (n-1) = show (p ! i) ++ ">"
-                              | otherwise = show (p ! i) ++ ","++ show' p n (i+1)
+  show p = "<" ++ show' p (length p) 0
+    where show' p n i | i== n     = ">"
+                      | i== (n-1) = show (p ! i) ++ ">"
+                      | otherwise = show (p ! i) ++ ","++ show' p n (i+1)
 
 instance Eq a => Eq (Arr a) where
-         s == p = length s == length p && and [s ! i == p ! i | i <- [0..length s - 1]]
+  s == p = length s == length p && and [s ! i == p ! i | i <- [0..length s - 1]]

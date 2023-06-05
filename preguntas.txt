@@ -1,6 +1,6 @@
-1) Es correcto dar definiciones de funciones a partir
-de funciones de listas, o se tienen que hacer explicitamente?
-(Ej. mapS = map)
-2) ¿Se puede agregar funciones al modulo Seq?
-3) ¿Estan paralelizadas las implementaciones de haskell (ej. fmap sobre vectores)?
-4) Preguntar por especificacion de costos de flatten
+1) ¿Se puede agregar funciones al modulo Seq o Arr?
+2) ¿Que sucede con un toTree de una secuencia vacia?
+3) Es correcto dar definiciones de funciones a partir
+de funciones de listas, o se tienen que hacer explicitamente? (Ej. mapS = map) 
+4) ¿Estan paralelizadas las implementaciones de haskell (ej. fmap sobre vectores)?
+5) Preguntar por especificacion de costos de flatten
