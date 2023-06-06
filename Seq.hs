@@ -1,6 +1,6 @@
 {- Implementación del TAD secuencia -}
 
-module Seq (reduceT, TreeView(..), ListView(..), Tree(..)) where
+module Seq (reduceT, TreeView(..), ListView(..)) where
 
 import Par ((|||))
 
@@ -24,11 +24,3 @@ class Seq s where
 
 data TreeView a t = EMPTY | ELT a | NODE t t
 data ListView a t = NIL | CONS a t
-
-data Tree a = Leaf a | Node (Tree a) (Tree a)
-  deriving Show -- TODO: Sacar esto
-reduceT :: (a -> a -> a) -> Tree a -> a
-reduceT g (Leaf x) = x
-reduceT g (Node l r) = let (l',r') = (reduceT g l)
-                                      ||| (reduceT g r)
-                       in g l' r'
