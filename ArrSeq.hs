@@ -1,9 +1,8 @@
 module ArrSeq where
 
-import Seq (reduceT, TreeView(..), ListView(..), Tree(..))
-import Par ((|||))
+import Seq
+import Par
 import qualified Arr as A
-import Arr ((!), Arr(A))
 
 contract :: (a -> a -> a) -> A.Arr a -> A.Arr a
 contract f xs = tabulateS g n'
@@ -11,59 +10,71 @@ contract f xs = tabulateS g n'
                 n = lengthS xs
                 k = n `div` 2
                 n' = if even n then k else k + 1
-                g i = if 2 * i + 1 /= n then f (nthS xs 2*i) (nthS xs (2*i + 1))
-                                        else (nthS xs 2*i)
+                g i = if 2 * i + 1 /= n then f (xs A.! (2*i)) (xs A.! (2*i + 1))
+                                        else (xs A.! (2*i))
+
+expand :: (a -> a -> a) -> (A.Arr a, a) -> A.Arr a -> (A.Arr a, a)
+expand f (ps, t) s = (tabulateS g (lengthS s), t)
+                where
+                  g i | even i = ps A.! (div i 2)
+                      | otherwise = let (x, y) = ps A.! (div i 2) |||
+                                                 s  A.! (i - 1)
+                                    in f x y
 
 instance Seq A.Arr where
   emptyS = A.empty
 
-  singletonS x = A.fromList [x]
+  singletonS x = Seq.fromList [x]
 
   lengthS = A.length
 
-  nthS = (!)
+  nthS = (A.!)
 
   tabulateS = A.tabulate
 
-  mapS f xs = ArrSeq.tabulateS (f . ArrSeq.nthS $ xs) (lengthS xs)
+  mapS f xs = tabulateS (f . (nthS xs)) (lengthS xs)
 
   filterS p xs = joinS $ tabulateS f (lengthS xs) 
-                 where f = let x = ArrSeq.nthS i
-                 in if p x then singletonS x 
-                           else emptyS
+                where f i = let x = nthS xs i
+                            in if p x then singletonS x 
+                                      else emptyS
   
-  appendS xs ys = ArrSeq.joinS $ ArrSeq.fromListS [xs, ys]
+  appendS xs ys = joinS $ fromList [xs, ys]
 
   takeS xs n = A.subArray 0 n xs
 
-  dropS xs n = A.subArray n (ArrSeq.lengthS xs) xs
+  dropS xs n = A.subArray n ((lengthS xs) - n) xs
 
-  showtS xs | n == 0 = Seq.EMPTY
-            | n == 1 = Seq.ELT (ArrSeq.nthS xs 0)
-            | otherwise = Seq.NODE (ArrSeq.takeS xs m) (ArrSeq.dropS xs m)
+  showtS xs | n == 0 = EMPTY
+            | n == 1 = ELT (nthS xs 0)
+            | otherwise = NODE (takeS xs m) (dropS xs m)
               where
-                n = ArrSeq.lengthS xs
+                n = lengthS xs
                 m = div n 2
 
-  showlS xs | n == 0 = Seq.NIL
-            | otherwise = Seq.CONS (ArrSeq.nthS xs 0) (ArrSeq.dropS xs 1)
-            where n = ArrSeq.lengthS xs
+  showlS xs | n == 0 = NIL
+            | otherwise = CONS (nthS xs 0) (dropS xs 1)
+            where n = lengthS xs
 
-  joinS xss | n == 0 = ArrSeq.emptyS
-            | n == 1 = ArrSeq.nthS xss 0
-            | otherwise = let (l, r) =  ArrSeq.joinS (ArrSeq.takeS xss m)
+  joinS xss | n == 0 = emptyS
+            | n == 1 = nthS xss 0
+            | otherwise = let (l, r) =  joinS (takeS xss m)
                                         |||
-                                        ArrSeq.joinS (ArrSeq.dropS xss m)
-                          in ArrSeq.appendS l r
+                                        joinS (dropS xss m)
+                          in appendS l r
               where
-                n = ArrSeq.lengthS xss
+                n = lengthS xss
                 m = div n 2
 
   reduceS f e xs | n == 0 = e
-                 | n == 1 = f e $ ArrSeq.nthS xs 0
+                 | n == 1 = f e $ nthS xs 0
                  | n > 1 = reduceS f e $ contract f xs
-                  where n = Arr.length xs
+                  where n = lengthS xs
   
   scanS :: (a -> a -> a) -> a -> A.Arr a -> (A.Arr a, a)
-  fromList = A.fromList
+  scanS f e xs | n == 0 = (emptyS, e)
+               | n == 1 = let x = nthS xs 0 in (singletonS e, f e x)
+               | otherwise = let s' = scanS f e $ contract f xs in expand f s' xs
+              where n = lengthS xs
 
+  fromList = A.fromList
