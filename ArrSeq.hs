@@ -13,8 +13,8 @@ contract f xs = tabulateS g n'
                 g i = if 2 * i + 1 /= n then f (xs A.! (2*i)) (xs A.! (2*i + 1))
                                         else (xs A.! (2*i))
 
-expand :: (a -> a -> a) -> (A.Arr a, a) -> A.Arr a -> (A.Arr a, a)
-expand f (ps, t) s = (tabulateS g (lengthS s), t)
+expand :: (a -> a -> a) -> A.Arr a -> A.Arr a -> A.Arr a
+expand f ps s = tabulateS g (lengthS s)
                 where
                   g i | even i = ps A.! (div i 2)
                       | otherwise = let (x, y) = ps A.! (div i 2) |||
@@ -71,10 +71,9 @@ instance Seq A.Arr where
                  | n > 1 = reduceS f e $ contract f xs
                   where n = lengthS xs
   
-  scanS :: (a -> a -> a) -> a -> A.Arr a -> (A.Arr a, a)
   scanS f e xs | n == 0 = (emptyS, e)
                | n == 1 = let x = nthS xs 0 in (singletonS e, f e x)
-               | otherwise = let s' = scanS f e $ contract f xs in expand f s' xs
+               | otherwise = let (s', t) = scanS f e $ contract f xs in (expand f s' xs, t)
               where n = lengthS xs
 
   fromList = A.fromList

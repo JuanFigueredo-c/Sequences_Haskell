@@ -4,16 +4,18 @@ import Par
 import Seq
 
 contract :: (a -> a -> a) -> [a] -> [a]
+contract _ [] = []
 contract _ [x] = [x]
 contract f (x:y:s) = let (z, zs) = (f x y) ||| contract f s in (z:zs)
 
-expand :: (a -> a -> a) -> ([a], a) -> [a] -> ([a], a)
-expand f (ps, t) s = (tabulateS g (lengthS s), t)
-                where
-                  g i | even i = ps ! (div i 2)
-                      | otherwise = let (x, y) = ps ! (div i 2) |||
-                                                 s  ! (i - 1)
-                                    in f x y
+expand :: (a -> a -> a) -> [a] -> [a] -> [a]
+expand f ps s = expand' f ps s
+              where
+                expand' f rs[] [] = rs
+                expand' f rs [x] = rs
+                expand' f (r:rs) (s1:s2:ss) = let (r', rs') = (f r s1) |||
+                                                              expand' f rs ss
+                                              in r:r':rs'
 
 instance Seq [] where
   emptyS = []
@@ -22,41 +24,36 @@ instance Seq [] where
 
   lengthS = length
 
-  nthS xs i = xs ! i
+  nthS xs i = xs !! i
 
   tabulateS f n = mapS f [0..(n-1)]
 
   mapS f [] = []
-  mapS f (x:xs) = let (y, ys) = f x ||| mapS f xs -- TODO chequear si paralelizar mejora el O
-                  in y:ys
+  mapS f (x:xs) = let (y,ys) = f x ||| mapS f xs in y:ys
 
   filterS = filter
 
   appendS = (++)
 
-  takeS = take
+  takeS s n = take n s
 
-  dropS = drop
+  dropS s n = drop n s
 
   showtS [] = EMPTY
   showtS [x] = ELT x
-  showtS xs = let n = (div (length xs) 2) in NODE (take xs n) (drop xs n)
+  showtS xs = let n = (div (length xs) 2) in NODE (take n xs) (drop n xs)
 
   showlS [] = NIL
   showlS (x:xs) = CONS x xs
 
   joinS = foldr (++) []
 
-  reduceS :: (a -> a -> a) -> a -> [a] -> a
-  reduceS g e xs = reduceS' g e xs (length xs)
-          where
-            reduceS' g e xs n | n == 0 = e
-                              | n == 1 = g e (nthS xs 0)
-                              | otherwise = let (q,k) = (n `div` 2, n `mod` 2)
-                                                n' = q + k
-                                                xs' = contract f xs
-                                            in reduceS' g e xs' n'
+  reduceS f e []  = e
+  reduceS f e [x] = f e x
+  reduceS f e xs  = let xs' = contract f xs in reduceS f e xs'
 
-  scanS :: (a -> a -> a) -> a -> [a] -> ([a], a)
+  scanS f e []  = (emptyS, e)
+  scanS f e [x] = (singletonS e, f e x)
+  scanS f e xs  = let (s',r) = scanS f e $ contract f xs in (expand f s' xs, r)
 
   fromList = id
