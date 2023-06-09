@@ -11,7 +11,7 @@ contract f (x:y:s) = let (z, zs) = (f x y) ||| contract f s in (z:zs)
 expand :: (a -> a -> a) -> [a] -> [a] -> [a]
 expand f ps s = expand' f ps s
               where
-                expand' f rs[] [] = rs
+                expand' f rs [] = rs
                 expand' f rs [x] = rs
                 expand' f (r:rs) (s1:s2:ss) = let (r', rs') = (f r s1) |||
                                                               expand' f rs ss

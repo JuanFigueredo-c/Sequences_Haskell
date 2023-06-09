@@ -56,15 +56,7 @@ instance Seq A.Arr where
             | otherwise = CONS (nthS xs 0) (dropS xs 1)
             where n = lengthS xs
 
-  joinS xss | n == 0 = emptyS
-            | n == 1 = nthS xss 0
-            | otherwise = let (l, r) =  joinS (takeS xss m)
-                                        |||
-                                        joinS (dropS xss m)
-                          in appendS l r
-              where
-                n = lengthS xss
-                m = div n 2
+  joinS = A.flatten
 
   reduceS f e xs | n == 0 = e
                  | n == 1 = f e $ nthS xs 0
