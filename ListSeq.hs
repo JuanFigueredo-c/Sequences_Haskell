@@ -11,11 +11,17 @@ contract f (x:y:s) = let (z, zs) = (f x y) ||| contract f s in (z:zs)
 expand :: (a -> a -> a) -> [a] -> [a] -> [a]
 expand f ps s = expand' f ps s
               where
+<<<<<<< HEAD
                 expand' f rs[] [] = rs
                 expand' f rs [x] = rs
                 expand' f (r:rs) (s1:s2:ss) = let (r', rs') = (f r s1) |||
                                                               expand' f rs ss
                                               in r:r':rs'
+=======
+                expand' f rs [] = rs
+                expand' f rs [x] = rs
+                expand' f (r:rs) (s1:s2:ss) = r:(f r s1):expand' f rs ss
+>>>>>>> c02b54f195364d45e57fc14afdabf1b78325ca35
 
 instance Seq [] where
   emptyS = []
@@ -28,8 +34,12 @@ instance Seq [] where
 
   tabulateS f n = mapS f [0..(n-1)]
 
+<<<<<<< HEAD
   mapS f [] = []
   mapS f (x:xs) = let (y,ys) = f x ||| mapS f xs in y:ys
+=======
+  mapS = map
+>>>>>>> c02b54f195364d45e57fc14afdabf1b78325ca35
 
   filterS = filter
 
