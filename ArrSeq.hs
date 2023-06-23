@@ -27,7 +27,7 @@ expand :: (a -> a -> a) -> A.Arr a -> A.Arr a -> A.Arr a
 expand f ps s = tabulateS g (lengthS s) -- Se aplica una funcion g que segun el indice realiza distintos calculos
                 where
                   g i | even i = ps A.! (div i 2) -- si esta en una posicion par, mantiene el valor
-                      | otherwise = let (x, y) = (ps A.! (div i 2)) (s  A.! (i - 1)) -- Si esta en una posicion impar    
+                      | otherwise = let (x, y) = ((ps A.! (div i 2)), (s  A.! (i - 1))) -- Si esta en una posicion impar    
                                     in f x y                                         -- realiza la operción necesaria para obtener el valor
                                                                                      
 
