@@ -51,9 +51,10 @@ instance Seq A.Arr where
   
   appendS xs ys = joinS $ fromList [xs, ys] -- Implementación de la concatenación de secuencias con arreglos
 
-  takeS xs n = A.subArray 0 n xs -- Implementación de la función takeS con arreglos
+  takeS xs n = A.subArray 0 (min n (lengthS xs)) xs -- Implementación de la función takeS con arreglos
 
-  dropS xs n = A.subArray n ((lengthS xs) - n) xs -- Implementación de la funcion dropS con arreglos
+  dropS xs n = let n' = min n (lengthS xs)
+               in A.subArray n' ((lengthS xs) - n') xs -- Implementación de la funcion dropS con arreglos
 
   showtS xs | n == 0 = EMPTY
             | n == 1 = ELT (nthS xs 0)
@@ -81,3 +82,4 @@ instance Seq A.Arr where
               where n = lengthS xs                                                          -- múltiples elementos.
                                                                                        
   fromList = A.fromList
+ 

@@ -47,7 +47,7 @@ instance Seq [] where
 
   filterS p [] = [] -- Implementación de la funcion filterS con listas
   filterS p (x:xs) = let (px, xs') = p x ||| filterS p xs
-                     in if px then xs' else x:xs'
+                     in if px then x:xs' else xs'
 
   appendS = (++) -- Implementación de la concatenacion de secuencias con listas
 
@@ -78,3 +78,4 @@ instance Seq [] where
                                                                                 -- se expande para conseguir el resultado final.
 
   fromList = id
+
